@@ -14,8 +14,6 @@
 	throw_speed = 1
 	layer = 3.9
 	pressure_resistance = 1
-	slot_flags = SLOT_HEAD
-	body_parts_covered = HEAD
 	attack_verb = list("slapped")
 	autoignition_temperature = AUTOIGNITION_PAPER
 	fire_fuel = 1
@@ -61,7 +59,7 @@
 			onclose(user, "[name]")
 	else
 		..() //Only show a regular description if it is too far away to read.
-		user << "<span class='notice'>It is too far away.</span>"
+		user << "<span class='notice'>It is too far away to read.</span>"
 
 /obj/item/weapon/paper/verb/rename()
 	set name = "Rename paper"
@@ -85,6 +83,51 @@
 			playsound(loc, 'sound/items/bikehorn.ogg', 50, 1)
 			spawn(20)
 				spam_flag = 0
+	return
+
+/obj/item/weapon/paper/verb/fold()
+	set category = "Object"
+	set name = "Fold paper"
+	set src in usr
+
+	if (!canfold(usr)) return //sanitychecking is good
+	//This following code shamelessly copied and adapted from iamgoofball's kitchen machines
+	var/list/list = typesof(/obj/item/weapon/p_folded)-(/obj/item/weapon/p_folded)+(/obj/item/weapon/envelope) //Make a list of pathdirs of all folded papers
+	//Also remove the base "folded paper" item as you're not meant to obtain that one, and add the letter envelope item to that since it's not a p_folded subdir.
+	var/list/foldingChoices[list.len] //Make a list of the same length to store the proper names in.
+	var/obj/item/temp
+	for(. in list)
+		temp = .
+		foldingChoices[initial(temp.name)] = temp //store each pathdir's proper name
+	. = foldingChoices[(input("Select result.") in foldingChoices)] //select the pathdir of the result
+	if (. == null) return
+	if (!canfold(usr)) return //second check in case some chucklefuck moves the paper or falls down while the menu is open
+
+	if (.==/obj/item/weapon/envelope) 	//It's a letter envelope, which is not a p_folded type, commence snowflake code.
+		if (src.info)					//this was originally a proc in letter_envelope.dm but that caused a couple issues so eyesore snowflake code it is
+			usr << "<span class='notice'>You need a blank paper to make that.</span>" //since you can't unfold it, don't want a paper with contents to get lost
+			return
+		var/obj/item/weapon/envelope/E = new/obj/item/weapon/envelope(usr.loc)
+		E.contains = src
+		usr.drop_from_inventory(src)
+		src.loc = null
+		usr.put_in_hands(E)
+		usr << "<span class='notice'>You make a letter envelope out of the blank paper.</span>"
+		return
+	else
+		var/obj/item/weapon/p_folded/P = new .(usr.loc) //Let's make a new item
+		P.unfolded = src								//that contains the original paper.
+		P.pixel_y = P.unfolded.pixel_y
+		P.pixel_x = P.unfolded.pixel_x
+		if (istype(src, /obj/item/weapon/paper/nano))
+			P.color = "#9A9A9A"
+			P.nano = 1
+		usr.drop_from_inventory(src)	//Drop the original paper to free our hand and call proper inventory handling code
+		src.loc = null					//Move it to null so noone can see it, when the paper gets unfolded it's teleported back to the player's hands anyways
+		usr.put_in_hands(P)
+		usr.visible_message("<span class='notice'>[usr] folds \the [src.name] into a [P.name].</span>", "<span class='notice'>You fold \the [src.name] into a [P.name].</span>")
+		P.add_fingerprint(usr)
+		src.add_fingerprint(usr)
 	return
 
 /obj/item/weapon/paper/attack_ai(var/mob/living/silicon/ai/user as mob)
@@ -191,6 +234,14 @@
 		\[img\]http://url\[/img\] : add an image
 	</BODY></HTML>"}, "window=paper_help")
 
+/obj/item/weapon/paper/proc/canfold(mob/user) //just sanitychecking
+	if(!user || (user.stat || user.restrained()) )
+		usr << "<span class='notice'>You can't do that while restrained.</span>"
+		return 0
+	if(user.l_hand != src && user.r_hand != src)
+		usr << "<span class='notice'>You'll need [src] in your hands to do that.</span>"
+		return 0
+	return 1
 
 /obj/item/weapon/paper/Topic(href, href_list)
 	..()
@@ -290,6 +341,38 @@
 		user.drop_item(P)
 		P.loc = src
 		user << "<span class='notice'>You attach the photo to the piece of paper.</span>"
+	else if( P.is_hot() )
+		var/prot = 0 //remains at 0 if user is not human for flair purposes
+		if(ishuman(user))
+			var/mob/living/carbon/human/H = user
+			if (M_RESIST_HEAT in H.mutations)
+				prot = 1
+			else if(H.gloves)
+				var/obj/item/clothing/gloves/G = H.gloves
+				if(G.max_heat_protection_temperature) prot = (G.max_heat_protection_temperature > 506) //wonder if anyone's gonna get that one
+			if(!prot && (M_CLUMSY in H.mutations) && prob(50)) //only fail if human
+				H.adjustFireLoss(5)
+				user.drop_item()
+				user.visible_message( \
+					"<span class='notice'>[user] tries to burn the [src], but burn themselves in the attempt.</span>", \
+					"<span class='warning'>You try to burn the [src], but burn yourself trying!</span>")
+				return //you fail before even managing to burn the paper!
+		if (istype(src, /obj/item/weapon/paper/nano))
+			user.visible_message( \
+					"<span class='notice'>[user] tries to burn the [src], but the advanced technology resists the flame.</span>", \
+					"<span class='warning'>You try to burn the [src], but the advanced technology resists the flame.</span>")
+			return
+		if(prot) //user is human and is protected from fire, let's make them badass
+			user.visible_message( \
+				"<span class='warning'>[user] holds up the [src.name] and sets it on fire, holding it in \his hand as it burns down to ashes. Damn, \he's cold.</span>", \
+				"<span class='warning'>You hold up the [src.name] and set it on fire, holding it in your hand as it burns down to ashes. Damn, you're cold.</span>")
+		else
+			user.visible_message( \
+				"<span class='warning'>[user] holds up the [src.name] and sets it on fire, reducing it to a heap of ashes.</span>", \
+				"<span class='warning'>You hold up the [src.name] and set it on fire, reducing it to a heap of ashes.</span>")
+		new /obj/effect/decal/cleanable/ash(get_turf(src)) //not using ashify() since it calls for src.loc rather than get_turf(src) which fucks stuff up if src is in your inventory
+		qdel(src)
+		return //no fingerprints, paper is gone
 	add_fingerprint(user)
 	return
 
