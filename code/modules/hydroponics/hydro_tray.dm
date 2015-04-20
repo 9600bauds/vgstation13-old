@@ -9,7 +9,7 @@
 	flags = OPENCONTAINER
 	volume = 100
 
-	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | FIXED2WORK
+	machine_flags = SCREWTOGGLE | CROWDESTROY
 
 
 	var/draw_warnings = 1 //Set to 0 to stop it from drawing the alert lights.
