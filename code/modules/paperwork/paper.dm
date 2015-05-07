@@ -236,10 +236,10 @@
 
 /obj/item/weapon/paper/proc/canfold(mob/user) //just sanitychecking
 	if(!user || (user.stat || user.restrained()) )
-		usr << "<span class='notice'>You can't do that while restrained.</span>"
+		user << "<span class='notice'>You can't do that while restrained.</span>"
 		return 0
 	if(user.l_hand != src && user.r_hand != src)
-		usr << "<span class='notice'>You'll need [src] in your hands to do that.</span>"
+		user << "<span class='notice'>You'll need [src] in your hands to do that.</span>"
 		return 0
 	return 1
 
