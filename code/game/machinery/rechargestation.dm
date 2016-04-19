@@ -18,6 +18,15 @@
 	var/capacitor_max = 0 //combined max power the capacitors can hold
 	machine_flags = SCREWTOGGLE | CROWDESTROY | WRENCHMOVE | EJECTNOTDEL
 
+	var/datum/html_interface/machine_upgrades/interface
+	var/datum/machinery_upgrade/recharge_station/fast1/upgrades
+
+/obj/machinery/recharge_station/proc/rebuild_ui()
+	var/dat = "<div class=\"tree\"><ul>"
+	dat += "[upgrades.writeDiv()]"
+	dat += "</ul></div>"
+	interface.updateLayout(dat)
+
 /obj/machinery/recharge_station/New()
 	. = ..()
 	build_icon()
@@ -31,6 +40,11 @@
 	)
 
 	RefreshParts()
+
+	interface = new(src, sanitize(name))
+	upgrades = new()
+
+	rebuild_ui()
 
 /obj/machinery/recharge_station/RefreshParts()
 	var/T = 0
@@ -126,6 +140,7 @@
 	attack_hand(user)
 
 /obj/machinery/recharge_station/attack_hand(var/mob/user)
+	interface.show(user)
 	if(occupant == user)
 		apply_cell_upgrade()
 		return
