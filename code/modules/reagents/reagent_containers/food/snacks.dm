@@ -1311,7 +1311,8 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/spaghetti
 	name = "Spaghetti"
-	desc = "Now thats a nice pasta!"
+	desc = "Now that's a nice pasta!"
+	slot_flags = SLOT_POCKET
 	icon_state = "spaghetti"
 	New()
 		..()
@@ -1914,6 +1915,7 @@
 /obj/item/weapon/reagent_containers/food/snacks/mommispaghetti
 	name = "bowl of MoMMi spaghetti "
 	desc = "You can feel the autism in this one."
+	slot_flags = SLOT_POCKET
 	icon_state = "spaghettiboiled"
 	New()
 		..()
@@ -1923,6 +1925,7 @@
 /obj/item/weapon/reagent_containers/food/snacks/boiledspaghetti
 	name = "Boiled Spaghetti"
 	desc = "A plain dish of noodles, this sucks."
+	slot_flags = SLOT_POCKET
 	icon_state = "spaghettiboiled"
 	trash = /obj/item/trash/plate
 	New()
@@ -1972,6 +1975,7 @@
 /obj/item/weapon/reagent_containers/food/snacks/pastatomato
 	name = "Spaghetti"
 	desc = "Spaghetti and crushed tomatoes. Just like your abusive father used to make!"
+	slot_flags = SLOT_POCKET
 	icon_state = "pastatomato"
 	trash = /obj/item/trash/plate
 	New()
@@ -1983,6 +1987,7 @@
 /obj/item/weapon/reagent_containers/food/snacks/copypasta
 	name = "copypasta"
 	desc = "You probably shouldn't try this, you always hear people talking about how bad it is..."
+	slot_flags = SLOT_POCKET
 	icon_state = "copypasta"
 	trash = /obj/item/trash/plate
 	New()
@@ -1994,6 +1999,7 @@
 /obj/item/weapon/reagent_containers/food/snacks/meatballspaghetti
 	name = "Spaghetti & Meatballs"
 	desc = "Now thats a nic'e meatball!"
+	slot_flags = SLOT_POCKET
 	icon_state = "meatballspaghetti"
 	trash = /obj/item/trash/plate
 	food_flags = FOOD_MEAT
@@ -2005,7 +2011,8 @@
 
 /obj/item/weapon/reagent_containers/food/snacks/spesslaw
 	name = "Spesslaw"
-	desc = "A lawyers favourite"
+	desc = "A lawyer's favourite."
+	slot_flags = SLOT_POCKET
 	icon_state = "spesslaw"
 	New()
 		..()
