@@ -379,8 +379,6 @@ Turf and target are seperate in case you want to teleport some distance from a t
 
 //Returns a list of all mobs with their name
 /proc/getmobs()
-
-
 	var/list/mobs = sortmobs()
 	var/list/names = list()
 	var/list/creatures = list()
@@ -437,6 +435,19 @@ Turf and target are seperate in case you want to teleport some distance from a t
 //	for(var/mob/living/silicon/hive_mainframe/M in world)
 //		mob_list.Add(M)
 	return moblist
+
+//Finds ALL mobs within range. Similar to "in viewers" but catches mobs that are not on a turf (e.g. inside a locker or such).
+/proc/get_mobs_within_range(var/turf/T, var/range = world.view, var/ignore_dead_mobs = FALSE, var/list/ignore_types = list())
+	. = list()
+	var/starting_mobs = ignore_dead_mobs ? living_mob_list : mob_list
+	for(var/mob/M in starting_mobs)
+		if(is_type_in_list(M, ignore_types))
+			continue
+		var/turf/mob_turf = get_turf(M)
+		if(!mob_turf || mob_turf.z != T.z) //because get_dist doesn't account for z levels
+			continue
+		if(get_dist(T, mob_turf) <= range) //here we are checking the distance on the mob's turf and not the mob itself, since mobs in a locker or such will have XYZ = 0,0,0
+			. += M
 
 //E = MC^2
 /proc/convert2energy(var/M)
