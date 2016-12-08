@@ -199,10 +199,10 @@
 				if(brutedamage > 0 && burndamage > 0)
 					status += " and "
 				if(burndamage > 40)
-					status += "<span class='orangeb'>peeling away</span>"
+					status += "<span class='orange bold'>peeling away</span>"
 
 				else if(burndamage > 10)
-					status += "<span class='orangei'>blistered</span>"
+					status += "<span class='orange italics'>blistered</span>"
 				else if(burndamage > 0)
 					status += "numb"
 				if(org.status & ORGAN_DESTROYED)
@@ -358,8 +358,9 @@
 	//actually throw it!
 	if (item)
 		item.forceMove(get_turf(src))
-		src.visible_message("<span class='warning'>[src] has thrown [item].</span>", \
-			drugged_message = "<span class='warning'>[item] escapes from [src]'s grasp and flies away!</span>")
+		if(!(item.flags & NO_THROW_MSG))
+			src.visible_message("<span class='warning'>[src] has thrown [item].</span>", \
+				drugged_message = "<span class='warning'>[item] escapes from [src]'s grasp and flies away!</span>")
 
 		src.apply_inertia(get_dir(target, src))
 
